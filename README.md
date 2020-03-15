@@ -10,7 +10,7 @@
 ## Todo
 
 - Inser Moodle as 1 microservice - https://github.com/moodlehq/moodle-docker
-- Integrate Moodle with SSO project
+- Integrate Moodle with SSO project - https://docs.moodle.org/dev/Authentication_plugins
 
 ## Project with Docker
 
