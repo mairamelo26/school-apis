@@ -1,0 +1,114 @@
+version: '3.4'
+
+services:
+    gatewayapi:
+        image: ${DOCKER_REGISTRY-}gatewayapi
+        restart: always
+        #volumes:
+            #- /etc/docker/ssl:/ssl
+            #- //c/SSL:/ssl
+        ports:
+            # "80:80"
+            #- "443:443"
+            - "3000:443"
+        build:
+            context: .
+            dockerfile: GatewayAPI/Dockerfile
+
+
+    #############################
+    # Database
+    #############################
+    ssomysql:
+      image: mysql
+      container_name: ssomysql
+      command: --default-authentication-plugin=mysql_native_password
+      restart: always
+      expose: 
+        - "3306"
+      environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: jp
+          MYSQL_DATABASE: jpproject
+          MYSQL_PASSWORD: 10203040
+    
+    #############################
+    # Server SSO
+    #############################
+    singlesignonpage:
+        image: "singlesignonpage"
+        container_name: singlesignonpage
+        build: 
+          context: .
+          dockerfile: ssomvc.dockerfile
+        depends_on:
+            - ssomysql
+        environment: 
+            ASPNETCORE_ENVIRONMENT: Development
+            ASPNETCORE_URLS: http://+:5001
+            CUSTOMCONNSTR_SSOConnection: "server=ssomysql,port=3306;database=jpproject;user=jp;password=10203040"
+            ApplicationSettings:EnableExternalProviders: "false" # Because Auth url is http://singlesignonpage (modified by host to point to 127.0.0.1), then Google and Facebook reject it.
+            ApplicationSettings:DatabaseType: MySql
+            ApplicationSettings:DefaultUser: bruno
+            ApplicationSettings:DefaultPass: Pa$$word123
+            ApplicationSettings:DefaultEmail: bhdebrito@gmail.com
+            ApplicationSettings:UserManagementURL: http://localhost:4400
+            ApplicationSettings:IS4AdminUi: http://localhost:4300
+            ApplicationSettings:ResourceServerURL: http://localhost:5002
+            ApplicationSettings:ShowDefaultUserPass: "true"
+            CertificateOptions:Type: Temporary
+
+    # #############################
+    # # Management API
+    # #############################
+    userservice:
+        image: userservice
+        container_name: userservice
+        build: 
+          context: .
+          dockerfile: ssoapi.dockerfile
+        depends_on:
+            - ssomysql
+        environment: 
+            ASPNETCORE_ENVIRONMENT: "Development"
+            ASPNETCORE_URLS: http://+
+            CUSTOMCONNSTR_SSOConnection: "server=ssomysql,port=3306;database=jpproject;user=jp;password=10203040"
+            ApplicationSettings:Authority: "http://singlesignonpage:5001"
+            ApplicationSettings:DatabaseType: MySql
+
+    #############################
+    # User management UI
+    #############################
+    identityusermanagement:
+        image: identityusermanagement
+        container_name: identityusermanagement
+        build: 
+          context: .
+          dockerfile: ssousers.dockerfile
+
+          
+    #############################
+    # Admin UI
+    #############################
+    identityadminui:
+        image: identityadminui
+        container_name: identityadminui
+        build: 
+          context: .
+          dockerfile: ssoadmin-ui.dockerfile
+
+
+    school-sso-proxy:
+        container_name: school-sso-proxy
+        build:
+            context: .
+            dockerfile: ssonginx.dockerfile
+        ports:
+            - '5001:5001'
+            - '5002:5002'
+            - '4400:4400'
+            - '4300:4300'
+        depends_on:
+            - 'userservice'
+            - 'identityusermanagement'
+            - 'singlesignonpage'
