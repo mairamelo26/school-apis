@@ -7,9 +7,10 @@
 - https://github.com/brunohbrito/JPProject.IdentityServer4.SSO
 - https://github.com/brunohbrito/MongoDB-RepositoryUoWPatterns
 
-## ToDo
+## Todo
 
-- Merge nginx files (root, singlesignonUI projects) into just one file - the dockerfiles must be reconfigured
+- Inser Moodle as 1 microservice - https://github.com/moodlehq/moodle-docker
+- Integrate Moodle with SSO project
 
 ## Project with Docker
 
