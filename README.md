@@ -11,6 +11,7 @@
 
 - Inser Moodle as 1 microservice - https://github.com/moodlehq/moodle-docker
 - Integrate Moodle with SSO project - https://docs.moodle.org/dev/Authentication_plugins
+- Deploy all microservices to the same pod on kubernetes: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 
 ## Project with Docker
 
