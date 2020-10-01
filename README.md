@@ -1,6 +1,6 @@
 # school-apis
 
-## Project for the maangement of platforms related to The Chain of Change 
+## Project for the management of platforms related to The Chain of Change 
 
 ### using SSO projects from: 
 - https://github.com/brunohbrito/JPProject.IdentityServer4.AdminUI
